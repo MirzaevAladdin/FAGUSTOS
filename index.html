@@ -1,329 +1,381 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>和菓子カフェ メニュー</title>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>カフェメニュー</title>
   <style>
-    :root{
-      --bg:#fbfbfd;
-      --card:#ffffff;
-      --muted:#7b8794;
-      --accent:#1e88e5; /* main blue */
-      --deep-blue:#0b57a4; /* bottom-heavy blue */
-      --radius:14px;
-      --glass: rgba(255,255,255,0.6);
-      font-family: 'Noto Sans JP', system-ui, -apple-system, "Segoe UI", Roboto, 'Helvetica Neue', Arial;
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: flex;
+      flex-direction: column;
+      font-family: "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: #faf7f2;
+      color: #333;
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      background: linear-gradient(180deg,var(--bg) 0%, #eef6ff 60%, #e6f0ff 85%, var(--deep-blue) 100%);
-      color:#05263a;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
+    h1 {
+      text-align: center;
+      color: #6b4226;
+      margin-bottom: 20px;
+    }
+    main { flex: 1; padding: 0 20px 20px; }
+    .filters { text-align: center; margin-bottom: 20px; }
+    .filters button {
+      margin: 5px; padding: 8px 16px;
+      border: none; border-radius: 16px;
+      background: #e8d3c1; cursor: pointer;
+      font-size: 0.9rem; transition: background 0.3s;
+    }
+    .filters button.active { background: #caa472; color: #fff; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #fff; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: flex; flex-direction: column; position: relative;
+      cursor: pointer;
+    }
+    .photo-wrap { position: relative; }
+    .photo-wrap img {
+      width: 100%; height: 160px;
+      object-fit: cover; display: block;
+      transition: transform 0.3s ease;
+    }
+    .photo-wrap:hover img { transform: scale(1.05); }
+    .meta { padding: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .name { font-weight: bold; font-size: 1.1rem; color: #6b4226; }
+    .desc { font-size: 0.85rem; color: #666; margin-top: 4px; }
+    .price { font-weight: bold; color: #c44; }
+
+    /* カードのステータス */
+    .status-label {
+      background: #e8d3c1; text-align: center;
+      font-size: 14px; font-weight: bold;
+      padding: 4px; color: #333;
     }
 
-    header{
-      padding:36px 24px 12px;
-      display:flex;
-      align-items:center;
-      gap:18px;
+    /* モーダル */
+    .modal {
+      display: none; position: fixed; z-index: 1000;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); justify-content: center; align-items: center;
     }
-    .brand{
-      display:flex;flex-direction:column;gap:6px
+    .modal-content {
+      background: #fff; border-radius: 12px;
+      max-width: 320px; width: 90%; padding: 20px;
+      position: relative; text-align: center;
     }
-    .brand h1{
-      margin:0;font-family:'Playfair Display';font-size:28px;letter-spacing:0.4px;
+    .close {
+      position: absolute; top: 10px; right: 13px;
+      font-size: 1.5rem; cursor: pointer; color: #999;
     }
-    .brand p{margin:0;color:var(--muted);font-size:14px}
+    .close:hover { color: #333; }
 
-    main{
-      flex:1 1 auto;
-      padding:18px 24px 60px;
-      width:100%;
-      max-width:1100px;
-      margin:0 auto;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(auto-fit,minmax(230px,1fr));
-      gap:18px;
+    footer { padding: 12px 0; display: flex; justify-content: center; }
+    .dev {
+      font-size: 14px; padding: 8px 16px;
+      border-radius: 8px; background: rgba(0,0,0,0.08);
+      text-align: center; color: #c2a676;
     }
 
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,0.8), var(--card));
-      border-radius:var(--radius);
-      padding:14px;
-      box-shadow:0 6px 20px rgba(8,30,50,0.08);
-      display:flex;flex-direction:column;gap:10px;align-items:stretch;
-      transition:transform .22s ease, box-shadow .22s ease;
+    /* 管理パネル */
+    #adminPanel {
+      display: none; position: fixed;
+      top: 60px; right: 10px;
+      background: #fff; padding: 15px;
+      border: 1px solid #ccc; border-radius: 8px;
+      z-index: 1000; width: 220px;
     }
-    .card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(8,30,50,0.12)}
-
-    .photo-wrap{
-      border-radius:12px;overflow:hidden;position:relative;cursor:pointer;
-      aspect-ratio:4/3;background:linear-gradient(135deg,#fff,#f6fbff);
+    #adminPanel h4 { margin: 0 0 10px; }
+    #adminPanel .close {
+      position: absolute; top: 5px; right: 8px;
+      font-size: 1.3rem; cursor: pointer; color: #999;
     }
-    .photo-wrap img{width:100%;height:100%;object-fit:cover;display:block}
-
-    .meta{display:flex;justify-content:space-between;align-items:center;gap:12px}
-    .name{font-weight:700}
-    .price{font-weight:700;color:var(--accent)}
-    .desc{font-size:13px;color:var(--muted);margin-top:4px}
-
-    .badge{font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(30,136,229,0.08);color:var(--accent);display:inline-block}
-
-    /* modal */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(2,12,27,0.5);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .18s ease}
-    .modal-backdrop.open{opacity:1;pointer-events:auto}
-    .modal{width:min(760px,94%);background:linear-gradient(180deg,rgba(255,255,255,0.96),#ffffff);border-radius:16px;padding:20px;box-shadow:0 30px 60px rgba(4,12,30,0.35);max-height:86vh;overflow:auto}
-    .modal-header{display:flex;justify-content:space-between;align-items:center;gap:12px}
-    .modal h2{margin:0;font-family:'Playfair Display'}
-    .close-btn{background:transparent;border:0;font-size:20px;cursor:pointer}
-    .recipe-img{width:100%;height:240px;object-fit:cover;border-radius:10px;margin-top:12px}
-    .ingredients{margin-top:12px}
-    .step{margin-top:8px;padding-left:12px}
-
-    footer{
-      padding:18px 24px;display:flex;justify-content:center;align-items:center;gap:12px;color:white;
-      background:linear-gradient(180deg,var(--deep-blue) 0%, #0a3f82 60%);
-      border-top-left-radius:24px;border-top-right-radius:24px;margin-top:auto
-    }
-    .dev{font-size:14px;opacity:0.95}
-
-    /* responsive tweaks */
-    @media (max-width:520px){
-      header{padding:22px 16px}
-      .brand h1{font-size:22px}
-    }
+    #adminPanel .close:hover { color: #333; }
   </style>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <h1>和菓子カフェ — 菓風 (Kafu)</h1>
-      <p>季節の和菓子とお抹茶をゆったりと</p>
+  <!-- メニューボタン -->
+  <button id="menuBtn" style="position:fixed;top:10px;right:10px;font-size:26px;background:none;border:none;cursor:pointer;z-index:1100;">☰</button>
+
+  <!-- ログイン画面 -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeLogin()">&times;</span>
+      <h3>管理者ログイン</h3>
+      <input type="text" id="loginInput" placeholder="ユーザー名"><br><br>
+      <input type="password" id="passInput" placeholder="パスワード"><br><br>
+      <button onclick="checkLogin()">ログイン</button>
     </div>
-  </header>
+  </div>
 
+  <!-- 管理者パネル -->
+  <div id="adminPanel">
+    <span class="close" onclick="closeAdminPanel()">&times;</span>
+    <h4>商品のステータス</h4>
+    <div id="selectedCard">カードを選択してください...</div><br>
+    <label><input type="radio" name="status" value="在庫あり"> 在庫あり</label><br>
+    <label><input type="radio" name="status" value="入荷待ち"> 入荷待ち</label><br>
+    <label><input type="radio" name="status" value="販売終了"> 販売終了</label><br><br>
+    <button onclick="saveStatus()">保存</button>
+  </div>
+
+  <h1>カフェメニュー</h1>
   <main>
-    <section class="grid" id="menu">
+    <!-- フィルター -->
+    <div class="filters">
+      <button data-season="all" class="active">共通メニュー</button>
+      <button data-season="spring">煮込み料理</button>
+      <button data-season="summer">サラダ</button>
+      <button data-season="autumn">飲み物</button>
+      <button data-season="winter">焼き菓子</button>
+    </div>
 
-      <!-- Card: 1 -->
-      <article class="card" data-id="1">
-        <div class="photo-wrap" data-recipe-id="1" tabindex="0" role="button" aria-label="苺大福のレシピを開く">
-          <img src="https://images.unsplash.com/photo-1589308078059-7f6e4d4860b5?q=80&w=1200&auto=format&fit=crop&crop=entropy" alt="苺大福">
+    <div class="grid">
+      <!-- カード1 -->
+      <article class="card" data-id="1" data-season="spring">
+        <div class="status-label" id="status-1">ステータス: 入荷待ち</div>
+        <div class="photo-wrap" data-recipe-id="1" tabindex="0">
+          <img src="https://i.ibb.co/v6SB8vc2/foto.jpg" alt="名前" loading="lazy">
         </div>
         <div class="meta">
           <div>
-            <div class="name">苺大福</div>
-            <div class="desc">柔らかい求肥で包んだ季節の苺</div>
+            <div class="name">料理名</div>
+            <div class="desc">説明</div>
           </div>
           <div class="price">¥420</div>
         </div>
       </article>
-
-      <!-- Card: 2 -->
-      <article class="card" data-id="2">
-        <div class="photo-wrap" data-recipe-id="2" tabindex="0" role="button" aria-label="抹茶どら焼きのレシピを開く">
-          <img src="https://images.unsplash.com/photo-1599785209707-98a1d39c5f9b?q=80&w=1200&auto=format&fit=crop&crop=entropy" alt="抹茶どら焼き">
+      <!-- カード2 -->
+      <article class="card" data-id="2" data-season="all">
+        <div class="status-label" id="status-2">ステータス: 入荷待ち</div>
+        <div class="photo-wrap" data-recipe-id="2" tabindex="0">
+          <img src="https://esmmweighless.com/wp-content/uploads/2019/12/Carolyn-Cooking-Blog-scaled.jpg" alt="名前" loading="lazy">
         </div>
         <div class="meta">
           <div>
-            <div class="name">抹茶どら焼き</div>
-            <div class="desc">ほろ苦い抹茶クリームをサンド</div>
+            <div class="name">料理名</div>
+            <div class="desc">説明</div>
           </div>
           <div class="price">¥380</div>
         </div>
       </article>
-
-      <!-- Card: 3 -->
-      <article class="card" data-id="3">
-        <div class="photo-wrap" data-recipe-id="3" tabindex="0" role="button" aria-label="栗きんとんのレシピを開く">
-          <img src="https://images.unsplash.com/photo-1604908812946-4f2f0b74f4d8?q=80&w=1200&auto=format&fit=crop&crop=entropy" alt="栗きんとん">
-        </div>
-        <div class="meta">
-          <div>
-            <div class="name">栗きんとん</div>
-            <div class="desc">季節の栗を丁寧に仕上げました</div>
-          </div>
-          <div class="price">¥520</div>
-        </div>
-      </article>
-
-      <!-- Card: 4 -->
-      <article class="card" data-id="4">
-        <div class="photo-wrap" data-recipe-id="4" tabindex="0" role="button" aria-label="三色団子のレシピを開く">
-          <img src="https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=1200&auto=format&fit=crop&crop=entropy" alt="三色団子">
-        </div>
-        <div class="meta">
-          <div>
-            <div class="name">三色団子</div>
-            <div class="desc">花見にもぴったりの昔ながらの味</div>
-          </div>
-          <div class="price">¥300</div>
-        </div>
-      </article>
-
-      <!-- Card: 5 -->
-      <article class="card" data-id="5">
-        <div class="photo-wrap" data-recipe-id="5" tabindex="0" role="button" aria-label="栗どら焼きのレシピを開く">
-          <img src="https://images.unsplash.com/photo-1532634896-26909d0d3f2f?q=80&w=1200&auto=format&fit=crop&crop=entropy" alt="小豆大福">
-        </div>
-        <div class="meta">
-          <div>
-            <div class="name">小豆大福</div>
-            <div class="desc">自家製のつぶあんをたっぷりと</div>
-          </div>
-          <div class="price">¥360</div>
-        </div>
-      </article>
-
-      <!-- Card: 6 -->
-      <article class="card" data-id="6">
-        <div class="photo-wrap" data-recipe-id="6" tabindex="0" role="button" aria-label="黒糖わらび餅のレシピを開く">
-          <img src="https://images.unsplash.com/photo-1559715742-7a9216b7b2f8?q=80&w=1200&auto=format&fit=crop&crop=entropy" alt="わらび餅">
-        </div>
-        <div class="meta">
-          <div>
-            <div class="name">黒糖わらび餅</div>
-            <div class="desc">ぷるぷる食感、黒糖香る一品</div>
-          </div>
-          <div class="price">¥440</div>
-        </div>
-      </article>
-
-    </section>
-  </main>
-
-  <!-- Modal (recipe) -->
-  <div id="modal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <div class="modal-header">
-        <h2 id="modal-title">レシピ名</h2>
-        <button class="close-btn" id="modal-close" aria-label="閉じる">✕</button>
+    </div>
+  <!-- Card 3 -->
+      <article class="card" data-id="3" data-season="all">
+        <div class="status-label" id="status-3">ステータス: 入荷待ち</div>
+        <div class="photo-wrap" data-recipe-id="3" tabindex="0">
+        <img src="https://i.ibb.co/LhzHZ90P/th-shutterstock-333766388-1-1.jpg" alt="名前" loading="lazy">
+      </picture>
+    </div>
+    <div class="meta">
+      <div>
+        <div class="name">名前</div>
+        <div class="desc">説明</div>
       </div>
-      <img src="" id="modal-img" alt="" class="recipe-img" />
-      <div class="ingredients">
-        <h3>材料</h3>
-        <ul id="modal-ingredients"></ul>
+      <div class="price">¥520</div>
+    </div>
+  </article>
+
+  <!-- Card 4 -->
+      <article class="card" data-id="4" data-season="all">
+        <div class="status-label" id="status-4">ステータス: 入荷待ち</div>
+        <div class="photo-wrap" data-recipe-id="4" tabindex="0">
+         <img src="https://i.ibb.co/cc1b6vLL/da4b8ba8.jpg" alt="名前" loading="lazy">
+      </picture>
+    </div>
+    <div class="meta">
+      <div>
+        <div class="name">名前</div>
+        <div class="desc">説明</div>
       </div>
-      <div class="instructions">
-        <h3>作り方</h3>
-        <ol id="modal-steps"></ol>
+      <div class="price">¥300</div>
+    </div>
+  </article>
+
+  <!-- Card 5 -->
+      <article class="card" data-id="5" data-season="all">
+        <div class="status-label" id="status-5">ステータス: 入荷待ち</div>
+        <div class="photo-wrap" data-recipe-id="5" tabindex="0">
+         <img src="https://i.ibb.co/cc1b6vLL/da4b8ba8.jpg" alt="名前" loading="lazy">
+      </picture>
+    </div>
+    <div class="meta">
+      <div>
+        <div class="name">名前</div>
+        <div class="desc">説明</div>
+      </div>
+      <div class="price">¥360</div>
+    </div>
+  </article>
+
+  <!-- Card 6 -->
+      <article class="card" data-id="6" data-season="all">
+        <div class="status-label" id="status-6">ステータス: 入荷待ち</div>
+        <div class="photo-wrap" data-recipe-id="6" tabindex="0">
+         <img src="https://i.ibb.co/cc1b6vLL/da4b8ba8.jpg" alt="名前" loading="lazy">
+      </picture>
+    </div>
+    <div class="meta">
+      <div>
+        <div class="name">名前</div>
+        <div class="desc">説明</div>
+      </div>
+      <div class="price">¥440</div>
+    </div>
+  </article>
+</div>
+    <div class="grid">
+    </div>
+    <div id="recipeModal" class="modal" aria-hidden="true">
+      <div class="modal-content" role="dialog" aria-modal="true">
+        <span class="close" aria-label="閉じる">&times;</span>
+        <h2 id="recipeTitle"></h2>
+        <div class="ingredients">
+          <h3>材料</h3>
+          <ul id="ingredientsList" role="list"></ul>
+        </div>
+        <div class="instructions">
+          <h3>作り方</h3>
+          <ol id="instructionsList" role="list"></ol>
+        </div>
       </div>
     </div>
-  </div>
+  </main>
+  
+    <!-- レシピモーダル -->
+    <div id="recipeModal" class="modal" aria-hidden="true">
+      <div class="modal-content" role="dialog" aria-modal="true">
+        <span class="close" aria-label="閉じる">&times;</span>
+        <h2 id="recipeTitle"></h2>
+        <div class="ingredients">
+          <h3>材料</h3>
+          <ul id="ingredientsList" role="list"></ul>
+        </div>
+        <div class="instructions">
+          <h3>作り方</h3>
+          <ol id="instructionsList" role="list"></ol>
+        </div>
+      </div>
+    </div>
+  </main>
 
   <footer>
-    <div class="dev">ウェブサイト開発者：ミルザエフアラジ氏</div>
+    <div class="dev">ウェブサイト開発者：ミルザエフアラジン氏</div>
   </footer>
 
   <script>
-    // シンプルなレシピデータ（必要に応じて拡張）
+    // === レシピ ===
     const recipes = {
-      1: {
-        title: '苺大福',
-        img: 'https://images.unsplash.com/photo-1589308078059-7f6e4d4860b5?q=80&w=1200&auto=format&fit=crop&crop=entropy',
-        ingredients: ['苺 6個', 'もち粉 120g', '砂糖 40g', '水 160ml', '片栗粉（打ち粉）適量', 'あんこ 150g'],
-        steps: [
-          'もち粉と砂糖を混ぜ、少しずつ水を加えて滑らかにする。',
-          'ラップして電子レンジで加熱（600Wで2分→混ぜる→さらに1分）し、柔らかくする。',
-          '片栗粉を広げ、求肥を取り出して薄く伸ばす。',
-          'あんこを小分けにして苺を包み、求肥で包んで形を整える。',
-          '完成。冷やしてからどうぞ。'
-        ]
-      },
-      2: {
-        title: '抹茶どら焼き',
-        img: 'https://images.unsplash.com/photo-1599785209707-98a1d39c5f9b?q=80&w=1200&auto=format&fit=crop&crop=entropy',
-        ingredients: ['薄力粉 140g', '卵 2個', '砂糖 60g', '蜂蜜 大さじ1', '抹茶パウダー 小さじ1', 'あんこ 200g'],
-        steps: ['卵と砂糖を泡立て、蜂蜜を加える。','薄力粉と抹茶をふるい入れ、さっくり混ぜる。','フライパンに丸く流し焼き、片面ずつ色がついたら冷ます。','あんこを挟んで完成。']
-      },
-      3: {
-        title: '栗きんとん',
-        img: 'https://images.unsplash.com/photo-1604908812946-4f2f0b74f4d8?q=80&w=1200&auto=format&fit=crop&crop=entropy',
-        ingredients: ['栗（甘露煮）300g', '砂糖 適量', '塩 少々'],
-        steps: ['栗の水気を切り、フードプロセッサーで潰す。','砂糖・塩で味を整え、弱火で練り上げる。','好みの形に整えて冷ます。']
-      },
-      4: {
-        title: '三色団子',
-        img: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=1200&auto=format&fit=crop&crop=entropy',
-        ingredients: ['白玉粉 200g', '水 180ml', 'こしあん 適量', '着色（抹茶・桜色）少々'],
-        steps: ['白玉粉に水を加え、耳たぶほどの固さにこねる。','三等分して色付けし、丸めて茹でる。','串に刺してあんこを添える。']
-      },
-      5: {
-        title: '小豆大福',
-        img: 'https://images.unsplash.com/photo-1532634896-26909d0d3f2f?q=80&w=1200&auto=format&fit=crop&crop=entropy',
-        ingredients: ['あんこ 200g', 'もち粉 120g', '砂糖 40g', '水 160ml', '片栗粉 適量'],
-        steps: ['求肥を作り、あんこを包み、形を整える。','表面に片栗粉をまぶして完成。']
-      },
-      6: {
-        title: '黒糖わらび餅',
-        img: 'https://images.unsplash.com/photo-1559715742-7a9216b7b2f8?q=80&w=1200&auto=format&fit=crop&crop=entropy',
-        ingredients: ['わらび粉 100g', '黒糖 80g', '水 400ml', 'きな粉 適量'],
-        steps: ['鍋にわらび粉と水を混ぜ、火にかけて練る。','透明感が出たら黒糖を加えてさらに練る。','冷やして切り、きな粉をまぶす。']
+      1: { title: "料理名", ingredients: ["材料1","材料2","材料3"], instructions: ["手順1","手順2","手順3"] },
+      2: { title: "料理名", ingredients: ["材料1","材料2","材料3"], instructions: ["手順1","手順2","手順3"] },
+      3: { title: "料理名", ingredients: ["材料1","材料2","材料3"], instructions: ["手順1","手順2","手順3"] },
+    };
+
+    const modal = document.getElementById("recipeModal");
+    const recipeTitle = document.getElementById("recipeTitle");
+    const ingredientsList = document.getElementById("ingredientsList");
+    const instructionsList = document.getElementById("instructionsList");
+    const closeBtn = modal.querySelector(".close");
+
+    function openRecipe(id) {
+      const recipe = recipes[id];
+      if (!recipe) return;
+      recipeTitle.textContent = recipe.title;
+      ingredientsList.innerHTML = recipe.ingredients.map(i => `<li>${i}</li>`).join("");
+      instructionsList.innerHTML = recipe.instructions.map(i => `<li>${i}</li>`).join("");
+      modal.style.display = "flex";
+    }
+    function closeRecipe() { modal.style.display="none"; }
+    document.querySelectorAll("[data-recipe-id]").forEach(el=>{
+      el.addEventListener("click",()=>openRecipe(el.dataset.recipeId));
+    });
+    closeBtn.addEventListener("click",closeRecipe);
+    modal.addEventListener("click",e=>{if(e.target===modal)closeRecipe()});
+    document.addEventListener("keydown",e=>{if(e.key==="Escape")closeRecipe()});
+
+    // === フィルター ===
+    const buttons = document.querySelectorAll(".filters button");
+    const cards = document.querySelectorAll(".card");
+    buttons.forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        buttons.forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        const season = btn.dataset.season;
+        cards.forEach(card=>{
+          card.style.display = (season==="all" || card.dataset.season===season) ? "flex" : "none";
+        });
+      });
+    });
+
+    // === 管理者ロジック ===
+    const menuBtn = document.getElementById("menuBtn");
+    const loginModal = document.getElementById("loginModal");
+    const adminPanel = document.getElementById("adminPanel");
+    const selectedCard = document.getElementById("selectedCard");
+    let currentCardId = null;
+    let isAdmin = false;
+
+    menuBtn.onclick = () => {
+      if (isAdmin) {
+        adminPanel.style.display = "block";
+      } else {
+        loginModal.style.display = "flex";
       }
     };
 
-    // open modal
-    const backdrop = document.getElementById('modal');
-    const modalTitle = document.getElementById('modal-title');
-    const modalImg = document.getElementById('modal-img');
-    const modalIngredients = document.getElementById('modal-ingredients');
-    const modalSteps = document.getElementById('modal-steps');
-    const closeBtn = document.getElementById('modal-close');
+    function closeLogin() { loginModal.style.display = "none"; }
+    function closeAdminPanel() { adminPanel.style.display = "none"; }
 
-    function openRecipe(id){
-      const recipe = recipes[id];
-      if(!recipe) return;
-      modalTitle.textContent = recipe.title;
-      modalImg.src = recipe.img;
-      modalImg.alt = recipe.title;
-      modalIngredients.innerHTML = recipe.ingredients.map(i=>`<li>${i}</li>`).join('');
-      modalSteps.innerHTML = recipe.steps.map(s=>`<li class="step">${s}</li>`).join('');
-      backdrop.classList.add('open');
-      backdrop.setAttribute('aria-hidden','false');
-      document.body.style.overflow = 'hidden';
+    window.onclick = function(event) {
+      if (event.target === loginModal) closeLogin();
+    };
+
+    function checkLogin() {
+      const login = document.getElementById("loginInput").value;
+      const pass = document.getElementById("passInput").value;
+      if (login === "admin" && pass === "987654321") {
+        loginModal.style.display = "none";
+        adminPanel.style.display = "block";
+        enableAdminMode();
+        isAdmin = true;
+      } else { alert("ユーザー名またはパスワードが違います！"); }
     }
 
-    function closeRecipe(){
-      backdrop.classList.remove('open');
-      backdrop.setAttribute('aria-hidden','true');
-      document.body.style.overflow = '';
+    function enableAdminMode() {
+      cards.forEach(card=>{
+        card.addEventListener("click",()=>{
+          currentCardId = card.dataset.id;
+          selectedCard.textContent = "選択されたカード №" + currentCardId;
+        });
+      });
     }
 
-    // attach events to all clickable photos
-    document.querySelectorAll('.photo-wrap').forEach(el=>{
-      const id = el.getAttribute('data-recipe-id');
-      el.addEventListener('click',()=>openRecipe(id));
-      el.addEventListener('keydown',(e)=>{ if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRecipe(id); } });
-    });
+    function saveStatus() {
+      const status = document.querySelector('input[name="status"]:checked');
+      if (status && currentCardId) {
+        const key = "status-card-" + currentCardId;
+        localStorage.setItem(key, status.value);
+        const el = document.getElementById("status-" + currentCardId);
+        if (el) el.textContent = "ステータス: " + status.value;
+        alert("ステータスが保存されました！");
+      } else { alert("カードとステータスを選択してください！"); }
+    }
 
-    // close handlers
-    closeBtn.addEventListener('click', closeRecipe);
-    backdrop.addEventListener('click',(e)=>{ if(e.target === backdrop) closeRecipe(); });
-    document.addEventListener('keydown',(e)=>{ if(e.key === 'Escape') closeRecipe(); });
-
-    // accessibility: focus trap minimal
-    backdrop.addEventListener('keydown',(e)=>{
-      if(!backdrop.classList.contains('open')) return;
-      const focusable = backdrop.querySelectorAll('button, [tabindex]');
-      if(focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length-1];
-      if(e.key === 'Tab'){
-        if(e.shiftKey && document.activeElement === first){ last.focus(); e.preventDefault(); }
-        else if(!e.shiftKey && document.activeElement === last){ first.focus(); e.preventDefault(); }
-      }
-    });
+    // ページ読み込み時にステータス復元
+    window.onload = () => {
+      document.querySelectorAll(".card").forEach(card => {
+        const id = card.dataset.id;
+        const savedStatus = localStorage.getItem("status-card-" + id);
+        if (savedStatus) {
+          const el = document.getElementById("status-" + id);
+          if (el) el.textContent = "ステータス: " + savedStatus;
+        }
+      });
+    };
   </script>
 </body>
 </html>
