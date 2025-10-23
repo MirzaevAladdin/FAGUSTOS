@@ -5,7 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>カフェメニュー</title>
   <style>
-    html, body { height: 100%; margin: 0; }
+  .filters button.active {
+      background: #caa472;
+      color: #fff;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin: 20px 0;
+      animation: glow 5s infinite alternate;
+      text-shadow:
+        0 0 5px #ff0000,
+        0 0 10px #ff7f00,
+        0 0 20px #00ff00,
+        0 0 25px #0000ff,
+        0 0 30px #8b00ff;
+    }
+    @keyframes glow {
+      0% { color: #ff4d4d; text-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff0000, 0 0 40px #ff4d4d; }
+      25% { color: #668fff; text-shadow: 0 0 10px #6b66ff, 0 0 20px #0084ff, 0 0 40px #6675ff; }
+      50% { color: #ffcf66; text-shadow: 0 0 10px #ffc966, 0 0 20px #ff4400, 0 0 40px #ff6666; }
+      75% { color: #66ccff; text-shadow: 0 0 10px #66ccff, 0 0 20px #3399ff, 0 0 40px #66ccff; }
+      100% { color: #cc66ff; text-shadow: 0 0 10px #cc66ff, 0 0 20px #9933ff, 0 0 40px #cc66ff; }
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
     body {
       display: flex;
       flex-direction: column;
@@ -13,116 +39,161 @@
       background: #faf7f2;
       color: #333;
     }
-    h1 {
+    main {
+      flex: 1;
+      padding: 0 20px 20px;
+    }
+    .filters {
       text-align: center;
-      color: #6b4226;
       margin-bottom: 20px;
     }
-    main { flex: 1; padding: 0 20px 20px; }
-    .filters { text-align: center; margin-bottom: 20px; }
     .filters button {
-      margin: 5px; padding: 8px 16px;
-      border: none; border-radius: 16px;
-      background: #e8d3c1; cursor: pointer;
-      font-size: 0.9rem; transition: background 0.3s;
+      margin: 5px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 16px;
+      background: #333;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: #fff;
+      transition: all 0.3s;
     }
-    .filters button.active { background: #caa472; color: #fff; }
+    .filters button.active {
+      background: #506dff;
+      color: #fff;
+      box-shadow: 0 0 10px #441367;
+    }
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-auto-rows: 260px; 
       gap: 20px;
     }
     .card {
-      background: #fff; border-radius: 12px; overflow: hidden;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      display: flex; flex-direction: column; position: relative;
-      cursor: pointer;
-    }
-    .photo-wrap { position: relative; }
-    .photo-wrap img {
-      width: 100%; height: 160px;
-      object-fit: cover; display: block;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      min-height: 260px;
       transition: transform 0.3s ease;
+      will-change: transform;
     }
-    .photo-wrap:hover img { transform: scale(1.05); }
-    .meta { padding: 12px; display: flex; justify-content: space-between; align-items: center; }
-    .name { font-weight: bold; font-size: 1.1rem; color: #6b4226; }
-    .desc { font-size: 0.85rem; color: #666; margin-top: 4px; }
-    .price { font-weight: bold; color: #c44; }
-
-    /* カードのステータス */
-    .status-label {
-      background: #e8d3c1; text-align: center;
-      font-size: 14px; font-weight: bold;
-      padding: 4px; color: #333;
+    .photo-wrap {
+      position: relative;
+      width: 100%;
+      height: 160px;
+      overflow: hidden;
+      flex-shrink: 0;
     }
-
-    /* モーダル */
+    .photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+      backface-visibility: hidden;
+      transform: translateZ(0);
+    }
+    .photo-wrap:hover img {
+      transform: scale(1.05);
+    }
+    .meta {
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-grow: 1; 
+    }
+    .name {
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: #6b4226;
+      animation: glow 6s infinite alternate;
+    }
+    .desc {
+      font-size: 0.85rem;
+      color: #bbb;
+      margin-top: 4px;
+    }
+    .price {
+      font-weight: bold;
+      color: #ff7f50;
+      text-shadow: 0 0 10px #ff7f50;
+    }
+    /* modal */
     .modal {
-      display: none; position: fixed; z-index: 1000;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6); justify-content: center; align-items: center;
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      padding: 0px;
     }
     .modal-content {
-      background: #fff; border-radius: 12px;
-      max-width: 320px; width: 90%; padding: 20px;
-      position: relative; text-align: center;
+      background: #fff;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 90%;
+      padding: 20px;
+      position: relative;
+      max-height: 90%;
+      overflow-y: auto;
+      transform: scale(0.9);
+      opacity: 0;
+      transition: all 0.3s ease;
     }
-    .close {
-      position: absolute; top: 10px; right: 13px;
-      font-size: 1.5rem; cursor: pointer; color: #999;
+    .modal.show .modal-content {
+      transform: scale(1);
+      opacity: 1;
     }
-    .close:hover { color: #333; }
-
-    footer { padding: 12px 0; display: flex; justify-content: center; }
-    .dev {
-      font-size: 14px; padding: 8px 16px;
-      border-radius: 8px; background: rgba(0,0,0,0.08);
-      text-align: center; color: #c2a676;
+    close {
+      position: absolute;
+      top: 10px;
+      right: 13px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #999;
     }
-
-    /* 管理パネル */
-    #adminPanel {
-      display: none; position: fixed;
-      top: 60px; right: 10px;
-      background: #fff; padding: 15px;
-      border: 1px solid #ccc; border-radius: 8px;
-      z-index: 1000; width: 220px;
+    @media (max-width: 480px) {
+      .modal-content {
+        width: 95%;
+        padding: 12px;
+        border-radius: 8px;
+      }
+      .close {
+        top: 5px;
+        right: 8px;
+        font-size: 1.2rem;
+      }
     }
-    #adminPanel h4 { margin: 0 0 10px; }
-    #adminPanel .close {
-      position: absolute; top: 5px; right: 8px;
-      font-size: 1.3rem; cursor: pointer; color: #999;
+    .ingredients, .instructions {
+      margin-top: 10px;
+      padding: 10px;
+      background: #faf7f2;
+      border-radius: 8px;
     }
-    #adminPanel .close:hover { color: #333; }
+    .ingredients ul, .instructions ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .ingredients li, .instructions li {
+      margin-bottom: 6px;
+    }
+    footer {
+      padding: 12px 0;
+      display: flex;
+      justify-content: center;
+      background: transparent;
+    }
   </style>
 </head>
 <body>
-  <!-- メニューボタン -->
-  <button id="menuBtn" style="position:fixed;top:10px;right:10px;font-size:26px;background:none;border:none;cursor:pointer;z-index:1100;">☰</button>
-
-  <!-- ログイン画面 -->
-  <div id="loginModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeLogin()">&times;</span>
-      <h3>管理者ログイン</h3>
-      <input type="text" id="loginInput" placeholder="ユーザー名"><br><br>
-      <input type="password" id="passInput" placeholder="パスワード"><br><br>
-      <button onclick="checkLogin()">ログイン</button>
-    </div>
-  </div>
-
-  <!-- 管理者パネル -->
-  <div id="adminPanel">
-    <span class="close" onclick="closeAdminPanel()">&times;</span>
-    <h4>商品のステータス</h4>
-    <div id="selectedCard">カードを選択してください...</div><br>
-    <label><input type="radio" name="status" value="在庫あり"> 在庫あり</label><br>
-    <label><input type="radio" name="status" value="入荷待ち"> 入荷待ち</label><br>
-    <label><input type="radio" name="status" value="販売終了"> 販売終了</label><br><br>
-    <button onclick="saveStatus()">保存</button>
-  </div>
-
   <h1>カフェメニュー</h1>
   <main>
     <!-- フィルター -->
@@ -133,41 +204,44 @@
       <button data-season="autumn">飲み物</button>
       <button data-season="winter">焼き菓子</button>
     </div>
-
     <div class="grid">
-      <!-- カード1 -->
-      <article class="card" data-id="1" data-season="spring">
-        <div class="status-label" id="status-1">ステータス: 入荷待ち</div>
-        <div class="photo-wrap" data-recipe-id="1" tabindex="0">
-          <img src="https://i.ibb.co/v6SB8vc2/foto.jpg" alt="名前" loading="lazy">
-        </div>
-        <div class="meta">
-          <div>
-            <div class="name">料理名</div>
-            <div class="desc">説明</div>
-          </div>
-          <div class="price">¥420</div>
-        </div>
-      </article>
-      <!-- カード2 -->
-      <article class="card" data-id="2" data-season="all">
-        <div class="status-label" id="status-2">ステータス: 入荷待ち</div>
-        <div class="photo-wrap" data-recipe-id="2" tabindex="0">
-          <img src="https://esmmweighless.com/wp-content/uploads/2019/12/Carolyn-Cooking-Blog-scaled.jpg" alt="名前" loading="lazy">
-        </div>
-        <div class="meta">
-          <div>
-            <div class="name">料理名</div>
-            <div class="desc">説明</div>
-          </div>
-          <div class="price">¥380</div>
-        </div>
-      </article>
+  <!-- Card 1 -->
+  <article class="card" data-id="1" data-season="spring">
+    <div class="photo-wrap" data-recipe-id="1" tabindex="0" role="button" aria-label="レシピ">
+      <picture> 
+        <source srcset="https://i.ibb.co/v6SB8vc2/foto.jpg" media="(max-width: 600px)">
+        <img src="https://i.ibb.co/v6SB8vc2/foto.jpg" alt="名前" loading="lazy">
+      </picture>
     </div>
+    <div class="meta">
+      <div>
+        <div class="name">名前</div>
+        <div class="desc">説明</div>
+      </div>
+      <div class="price">¥420</div>
+    </div>
+  </article>
+  <!-- Card 2 -->
+  <article class="card" data-id="2" data-season="all">
+    <div class="photo-wrap" data-recipe-id="2" tabindex="0" role="button" aria-label="レシピ">
+      <picture>
+        <source srcset="https://esmmweighless.com/wp-content/uploads/2019/12/Carolyn-Cooking-Blog-scaled.jpg" media="(max-width: 600px)">
+        <img src="https://esmmweighless.com/wp-content/uploads/2019/12/Carolyn-Cooking-Blog-scaled.jpg" alt="名前" loading="lazy">
+      </picture>
+    </div>
+    <div class="meta">
+      <div>
+        <div class="name">名前</div>
+        <div class="desc">説明</div>
+      </div>
+      <div class="price">¥380</div>
+    </div>
+  </article>
   <!-- Card 3 -->
-      <article class="card" data-id="3" data-season="all">
-        <div class="status-label" id="status-3">ステータス: 入荷待ち</div>
-        <div class="photo-wrap" data-recipe-id="3" tabindex="0">
+  <article class="card" data-id="3" data-season="autumn">
+    <div class="photo-wrap" data-recipe-id="3" tabindex="0" role="button" aria-label="レシピ">
+      <picture>
+        <source srcset="https://i.ibb.co/LhzHZ90P/th-shutterstock-333766388-1-1.jpg" media="(max-width: 600px)">
         <img src="https://i.ibb.co/LhzHZ90P/th-shutterstock-333766388-1-1.jpg" alt="名前" loading="lazy">
       </picture>
     </div>
@@ -179,11 +253,11 @@
       <div class="price">¥520</div>
     </div>
   </article>
-
   <!-- Card 4 -->
-      <article class="card" data-id="4" data-season="all">
-        <div class="status-label" id="status-4">ステータス: 入荷待ち</div>
-        <div class="photo-wrap" data-recipe-id="4" tabindex="0">
+  <article class="card" data-id="4" data-season="spring">
+    <div class="photo-wrap" data-recipe-id="4" tabindex="0" role="button" aria-label="レシピ">
+      <picture>
+         <source srcset="https://i.ibb.co/cc1b6vLL/da4b8ba8.jpg" media="(max-width: 600px)">
          <img src="https://i.ibb.co/cc1b6vLL/da4b8ba8.jpg" alt="名前" loading="lazy">
       </picture>
     </div>
@@ -195,11 +269,11 @@
       <div class="price">¥300</div>
     </div>
   </article>
-
   <!-- Card 5 -->
-      <article class="card" data-id="5" data-season="all">
-        <div class="status-label" id="status-5">ステータス: 入荷待ち</div>
-        <div class="photo-wrap" data-recipe-id="5" tabindex="0">
+  <article class="card" data-id="5" data-season="all">
+    <div class="photo-wrap" data-recipe-id="5" tabindex="0" role="button" aria-label="レシピ">
+      <picture>
+         <source srcset="https://i.ibb.co/cc1b6vLL/da4b8ba8.jpg" media="(max-width: 600px)">
          <img src="https://i.ibb.co/cc1b6vLL/da4b8ba8.jpg" alt="名前" loading="lazy">
       </picture>
     </div>
@@ -211,11 +285,11 @@
       <div class="price">¥360</div>
     </div>
   </article>
-
   <!-- Card 6 -->
-      <article class="card" data-id="6" data-season="all">
-        <div class="status-label" id="status-6">ステータス: 入荷待ち</div>
-        <div class="photo-wrap" data-recipe-id="6" tabindex="0">
+  <article class="card" data-id="6" data-season="summer">
+    <div class="photo-wrap" data-recipe-id="6" tabindex="0" role="button" aria-label="名前く">
+      <picture>
+         <source srcset="https://i.ibb.co/cc1b6vLL/da4b8ba8.jpg" media="(max-width: 600px)">
          <img src="https://i.ibb.co/cc1b6vLL/da4b8ba8.jpg" alt="名前" loading="lazy">
       </picture>
     </div>
@@ -227,8 +301,7 @@
       <div class="price">¥440</div>
     </div>
   </article>
-</div>
-    <div class="grid">
+  <div class="grid">
     </div>
     <div id="recipeModal" class="modal" aria-hidden="true">
       <div class="modal-content" role="dialog" aria-modal="true">
@@ -245,59 +318,45 @@
       </div>
     </div>
   </main>
-  
-    <!-- レシピモーダル -->
-    <div id="recipeModal" class="modal" aria-hidden="true">
-      <div class="modal-content" role="dialog" aria-modal="true">
-        <span class="close" aria-label="閉じる">&times;</span>
-        <h2 id="recipeTitle"></h2>
-        <div class="ingredients">
-          <h3>材料</h3>
-          <ul id="ingredientsList" role="list"></ul>
-        </div>
-        <div class="instructions">
-          <h3>作り方</h3>
-          <ol id="instructionsList" role="list"></ol>
-        </div>
-      </div>
-    </div>
-  </main>
-
   <footer>
     <div class="dev">ウェブサイト開発者：ミルザエフアラジン氏</div>
   </footer>
-
   <script>
-    // === レシピ ===
     const recipes = {
-      1: { title: "料理名", ingredients: ["材料1","材料2","材料3"], instructions: ["手順1","手順2","手順3"] },
-      2: { title: "料理名", ingredients: ["材料1","材料2","材料3"], instructions: ["手順1","手順2","手順3"] },
-      3: { title: "料理名", ingredients: ["材料1","材料2","材料3"], instructions: ["手順1","手順2","手順3"] },
+      1: { title: "名前", ingredients: ["名前 ", "名前 ", "名前 "], instructions: ["名前", "名前", "名前"] },
+      2: { title: "名前", ingredients: ["名前 ", "名前 ", "名前"], instructions: ["名前", "名前", "名前"] },
+      3: { title: "名前", ingredients: ["名前 ", "名前 "], instructions: ["名前", "名前", "名前"] },
+      4: { title: "名前", ingredients: ["名前 ", "名前 ", "名前"], instructions: ["名前", "名前", "名前"] },
+      5: { title: "名前", ingredients: ["名前 ", "名前 "], instructions: ["名前", "名前", "名前"] },
+      6: { title: "名前", ingredients: ["名前 ", "名前 ", "名前"], instructions: ["名前", "名前", "名前"] }
     };
-
     const modal = document.getElementById("recipeModal");
+    const modalContent = modal.querySelector(".modal-content");
     const recipeTitle = document.getElementById("recipeTitle");
     const ingredientsList = document.getElementById("ingredientsList");
     const instructionsList = document.getElementById("instructionsList");
     const closeBtn = modal.querySelector(".close");
-
     function openRecipe(id) {
       const recipe = recipes[id];
-      if (!recipe) return;
       recipeTitle.textContent = recipe.title;
-      ingredientsList.innerHTML = recipe.ingredients.map(i => `<li>${i}</li>`).join("");
-      instructionsList.innerHTML = recipe.instructions.map(i => `<li>${i}</li>`).join("");
+      ingredientsList.innerHTML = recipe.ingredients.map(i => `<li role="listitem">${i}</li>`).join("");
+      instructionsList.innerHTML = recipe.instructions.map(i => `<li role="listitem">${i}</li>`).join("");
       modal.style.display = "flex";
+      setTimeout(()=>modal.classList.add("show"),10);
+      modal.setAttribute("aria-hidden","false");
     }
-    function closeRecipe() { modal.style.display="none"; }
+    function closeRecipe() {
+      modal.classList.remove("show");
+      setTimeout(()=>{modal.style.display="none";},300);
+      modal.setAttribute("aria-hidden","true");
+    }
     document.querySelectorAll("[data-recipe-id]").forEach(el=>{
       el.addEventListener("click",()=>openRecipe(el.dataset.recipeId));
+      el.addEventListener("keypress",(e)=>{if(e.key==="Enter")openRecipe(el.dataset.recipeId)});
     });
     closeBtn.addEventListener("click",closeRecipe);
     modal.addEventListener("click",e=>{if(e.target===modal)closeRecipe()});
     document.addEventListener("keydown",e=>{if(e.key==="Escape")closeRecipe()});
-
-    // === フィルター ===
     const buttons = document.querySelectorAll(".filters button");
     const cards = document.querySelectorAll(".card");
     buttons.forEach(btn=>{
@@ -306,76 +365,15 @@
         btn.classList.add("active");
         const season = btn.dataset.season;
         cards.forEach(card=>{
-          card.style.display = (season==="all" || card.dataset.season===season) ? "flex" : "none";
+          if(season==="all" || card.dataset.season===season){
+            card.style.display="flex";
+          } else {
+            card.style.display="none";
+          }
         });
       });
     });
-
-    // === 管理者ロジック ===
-    const menuBtn = document.getElementById("menuBtn");
-    const loginModal = document.getElementById("loginModal");
-    const adminPanel = document.getElementById("adminPanel");
-    const selectedCard = document.getElementById("selectedCard");
-    let currentCardId = null;
-    let isAdmin = false;
-
-    menuBtn.onclick = () => {
-      if (isAdmin) {
-        adminPanel.style.display = "block";
-      } else {
-        loginModal.style.display = "flex";
-      }
-    };
-
-    function closeLogin() { loginModal.style.display = "none"; }
-    function closeAdminPanel() { adminPanel.style.display = "none"; }
-
-    window.onclick = function(event) {
-      if (event.target === loginModal) closeLogin();
-    };
-
-    function checkLogin() {
-      const login = document.getElementById("loginInput").value;
-      const pass = document.getElementById("passInput").value;
-      if (login === "admin" && pass === "987654321") {
-        loginModal.style.display = "none";
-        adminPanel.style.display = "block";
-        enableAdminMode();
-        isAdmin = true;
-      } else { alert("ユーザー名またはパスワードが違います！"); }
-    }
-
-    function enableAdminMode() {
-      cards.forEach(card=>{
-        card.addEventListener("click",()=>{
-          currentCardId = card.dataset.id;
-          selectedCard.textContent = "選択されたカード №" + currentCardId;
-        });
-      });
-    }
-
-    function saveStatus() {
-      const status = document.querySelector('input[name="status"]:checked');
-      if (status && currentCardId) {
-        const key = "status-card-" + currentCardId;
-        localStorage.setItem(key, status.value);
-        const el = document.getElementById("status-" + currentCardId);
-        if (el) el.textContent = "ステータス: " + status.value;
-        alert("ステータスが保存されました！");
-      } else { alert("カードとステータスを選択してください！"); }
-    }
-
-    // ページ読み込み時にステータス復元
-    window.onload = () => {
-      document.querySelectorAll(".card").forEach(card => {
-        const id = card.dataset.id;
-        const savedStatus = localStorage.getItem("status-card-" + id);
-        if (savedStatus) {
-          const el = document.getElementById("status-" + id);
-          if (el) el.textContent = "ステータス: " + savedStatus;
-        }
-      });
-    };
   </script>
 </body>
 </html>
+
