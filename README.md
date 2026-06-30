@@ -49,7 +49,8 @@ This project was created to improve my front-end development skills, especially:
 - Add search functionality
 - Convert into React version
 
-<img width="957" height="607" alt="スクリーンショット 2026-05-22 104651" src="https://github.com/user-attachments/assets/5ac48c94-fd26-406b-bb31-0405c9bac0ae" />
+<img width="1275" height="766" alt="スクリーンショット 2026-06-30 091455" src="https://github.com/user-attachments/assets/83e7957a-0b52-480f-bf8f-b405bcc87118" />
+
 
 ---
 
